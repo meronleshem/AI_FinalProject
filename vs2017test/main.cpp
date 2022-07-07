@@ -384,6 +384,29 @@ void DrawSquare(int i, int j)
 	glEnd();
 }
 
+void FireBullet(NPC* npc, int targetColor , NPC* targetTeam[])
+{
+	int brow = npc->getBullet()->GetRow();
+	int bcol = npc->getBullet()->GetCol();
+	for (int i = brow - 5; i < brow + 5; i++)
+	{
+		for (int j = bcol - 5; j < bcol + 5; j++)
+		{
+			if (maze[i][j] == targetColor)
+			{
+				for (int k = 0; k < NUM_OF_PLAYERS; k++)
+				{
+					if (targetTeam[k]->GetRow() == i && targetTeam[k]->GetCol() == j)
+					{
+						targetTeam[k]->GotBullet();
+						npc->StopBulletAfterHit();
+					}
+				}
+			}
+		}
+	}
+}
+
 void Display()
 {
 	glClear(GL_COLOR_BUFFER_BIT); // clean frame buffer
@@ -393,10 +416,16 @@ void Display()
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
 		if (redTeam[i]->getBullet() != nullptr)
-			redTeam[i]->getBullet()->show();
+		{
+			redTeam[i]->getBullet()->show(RED_TEAM_COLOR);
+			FireBullet(redTeam[i], BLUE_TEAM_COLOR, blueTeam);
+		}
 
 		if (blueTeam[i]->getBullet() != nullptr)
-			blueTeam[i]->getBullet()->show();
+		{
+			blueTeam[i]->getBullet()->show(BLUE_TEAM_COLOR);
+			FireBullet(blueTeam[i], RED_TEAM_COLOR, redTeam);
+		}
 
 	}
 	glutSwapBuffers(); // show all

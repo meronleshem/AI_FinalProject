@@ -13,16 +13,6 @@
 
 using namespace std;
 
-const int RED_TEAM_COLOR = 50;
-const int BLUE_TEAM_COLOR = 60;
-
-const int MAX_HP = 100;
-const int LOW_HP = MAX_HP / 4;
-
-const int MAX_NUM_OF_BULLETS = 20;
-const int MAX_NUM_OF_GRENADES = 5;
-
-
 class State;
 
 class NPC
@@ -41,6 +31,7 @@ private:
 	bool isAttacking, isMoving;
 	bool atBase, goingToBase, goingToEnemy;
 	bool hasPath, fire;
+	bool isDead;
 	State* pCurrentState;
 	priority_queue<Cell*, vector<Cell*>, CmpCellF> pqAStar;
 	stack<int> path;
@@ -55,11 +46,15 @@ public:
 	// getters
 	Base* getBase() { return pBase; }
 	int getHP() { return hp; }
+	int GetRow() { return row; }
+	int GetCol() { return col; }
 	int getTeamColor() { return teamColor; }
 	int getTargetX() { return targetRow; }
 	int getTargetY() { return targetCol; }
+	void GotBullet();
 	State* getCurrentState() { return pCurrentState; }
 	Bullet* getBullet() { return bullet; }
+	void StopBulletAfterHit() { bullet = nullptr; }
 	//State* getInterruptedState() { return pInterruptedState; }
 
 

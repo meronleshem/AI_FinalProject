@@ -27,6 +27,17 @@ NPC::~NPC()
 {
 }
 
+void NPC::GotBullet()
+{
+	hp -= 35;
+	cout << hp << endl;
+	if (hp < 0)
+	{
+		isDead = true;
+		cout << "Dead" << endl;
+	}
+}
+
 void NPC::setTarget(double targetX, double targetY)
 {
 
@@ -34,12 +45,16 @@ void NPC::setTarget(double targetX, double targetY)
 
 void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 {
-	
-	if (isMoving) {
+	if (isDead)
+	{
+		maze[row][col] = SPACE;
+		return;
+	}
+	if (isMoving && !fire) {
 		// move npc to next cell by ai path
 		if (hasPath)
 		{
-			Sleep(50);
+			Sleep(10);
 			Move(maze);
 		}
 		else
@@ -50,24 +65,31 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 	}
 
 	if (isAttacking) {
-		SearchInRoom(maze);
+		
 		// shoots more bullets than throws grenades
 		if (rand() % 4 == 0) {
 			// throw grenade
 		}
 		else {
-			if (fire)
+			// shoot a bullet
+			if (SearchInRoom(maze))
 			{
-				if (bullet == nullptr || !bullet->getIsMoving())
+				if (bullet == nullptr)
 				{
 					bullet = new Bullet(row, col, (rand() % 360) * 3.14 / 180);
 					bullet->Fire();
-
 				}
-				if (bullet->getIsMoving())
-					bullet->Move(maze);
 			}
-			// shoot a bullet
+			else
+			{
+				if (bullet != nullptr)
+				{
+					if (bullet->getIsMoving())
+						bullet->Move(maze);
+					else
+						bullet = nullptr;
+				}
+			}
 		}
 	}
 
@@ -161,19 +183,15 @@ bool NPC::SearchInRoom(int maze[MAP_SIZE][MAP_SIZE])
 			if (maze[i][j] != teamColor)
 			{
 				if (ManhattanDistance(row, col, i, j) < 15)
+				{
+					return true;
 					fire = true;
+				}
 			}
 		}
 	}
 
-	//for (int i = 0; i < MAP_SIZE; i++)
-	//{
-	//	for (int j = 0; j < MAP_SIZE; j++)
-	//	{
-	//		cout << maze[i][j] << " ";
-	//	}
-	//	cout << endl;
-	//}
+	fire = false;
 	return false;
 }
 

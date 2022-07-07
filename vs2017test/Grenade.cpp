@@ -40,7 +40,7 @@ void Grenade::Exploding(int maze[MAP_SIZE][MAP_SIZE])
 void Grenade::show()
 {
 	for (int i = 0; i < NUM_BULLETS; i++)
-		bullets[i]->show();
+		bullets[i]->show(RED_TEAM_COLOR);
 
 }
 

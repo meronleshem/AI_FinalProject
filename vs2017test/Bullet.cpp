@@ -16,9 +16,12 @@ Bullet::Bullet(double x, double y, double angle)
 	isMoving = false;
 }
 
-void Bullet::show()
+void Bullet::show(int team)
 {
-	glColor3d(0, 0, 0);
+	if(team == RED_TEAM_COLOR)
+		glColor3d(0.5, 0.1, 0);
+	else
+		glColor3d(0, 0.1, 0.5);
 	glBegin(GL_POLYGON);
 	glVertex2d(x - 0.5, y);
 	glVertex2d(x , y + 0.5);

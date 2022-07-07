@@ -1,6 +1,6 @@
 #pragma once
 #include "Definitions.h"
-const double SPEED = 2;
+const double SPEED = 3;
 
 class Bullet
 {
@@ -12,7 +12,9 @@ private:
 public:
 	Bullet();
 	Bullet(double x, double y, double angle);
-	void show();
+	void show(int team);
+	int GetRow() { return (int)x; }
+	int GetCol() { return (int)y; }
 	~Bullet();
 	void Fire() { isMoving = true; }
 	void Move(int maze[MAP_SIZE][MAP_SIZE]);
