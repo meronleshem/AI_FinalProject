@@ -9,6 +9,7 @@
 #include "CompareCells.h"
 #include "Base.h"
 #include "Definitions.h"
+#include "Bullet.h"
 
 using namespace std;
 
@@ -39,15 +40,12 @@ private:
 
 	bool isAttacking, isMoving;
 	bool atBase, goingToBase, goingToEnemy;
-	bool hasPath;
+	bool hasPath, fire;
 	State* pCurrentState;
 	priority_queue<Cell*, vector<Cell*>, CmpCellF> pqAStar;
 	stack<int> path;
+	Bullet* bullet;
 	//State* pInterruptedState;
-
-	//priority_queue<Cell*, vector<Cell*>, CmpCellF> pqAStar;
-	//stack<int> path;
-	//bool hasPath;
 
 public:
 	NPC(Base* pB, int x, int y, int teamColor);
@@ -61,6 +59,7 @@ public:
 	int getTargetX() { return targetRow; }
 	int getTargetY() { return targetCol; }
 	State* getCurrentState() { return pCurrentState; }
+	Bullet* getBullet() { return bullet; }
 	//State* getInterruptedState() { return pInterruptedState; }
 
 
@@ -86,5 +85,6 @@ public:
 	void DrawMe();
 	double CalculateDistanceFromTarget();
 	bool hasArrivedToBase();
+	bool SearchInRoom(int maze[MAP_SIZE][MAP_SIZE]);
 };
 

@@ -264,8 +264,8 @@ void RestorePath(Cell* ps)
 {
 	while (ps->getParent() != nullptr)
 	{
-		if (maze[ps->getRow()][ps->getCol()] == WALL)
-			maze[ps->getRow()][ps->getCol()] = SPACE;
+		if (maze[ps->getCol()][ps->getRow()] == WALL)
+			maze[ps->getCol()][ps->getRow()] = SPACE;
 		ps = ps->getParent();
 	}
 }
@@ -355,7 +355,7 @@ void ShowMaze()
 			switch (maze[i][j]) {
 
 			case WALL:
-				glColor3d(0, 0, 0);
+				glColor3d(0.1, 0.1, 0.1);
 				break;
 			case GRAY:
 				glColor3d(1, 1, 1);
@@ -390,7 +390,15 @@ void Display()
 	
 	ShowMaze();
 	ShowNPCs();
+	for (int i = 0; i < NUM_OF_PLAYERS; i++)
+	{
+		if (redTeam[i]->getBullet() != nullptr)
+			redTeam[i]->getBullet()->show();
 
+		if (blueTeam[i]->getBullet() != nullptr)
+			blueTeam[i]->getBullet()->show();
+
+	}
 	glutSwapBuffers(); // show all
 }
 
@@ -416,12 +424,17 @@ void Idle()
 		for (int i = 0; i < NUM_OF_PLAYERS; i++) {
 			if (redTeam[i] != nullptr) {
 				redTeam[i]->DoSomething(maze);
+		
 			}
 			if (blueTeam[i] != nullptr) {
 				blueTeam[i]->DoSomething(maze);
 			}
 		}
+	
 	}
+
+
+
 	//Sleep(0);
 
 		

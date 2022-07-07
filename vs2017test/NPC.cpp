@@ -45,38 +45,28 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 		else
 			CalcMove(maze, targetRow, targetCol, SPACE);
 
-		// just to check npc movement, random side each time
-		/*switch (rand() % 4) {
-		case 0:
-			if (maze[row + 1][col] != WALL) {
-				row = row + 1;
-			}
-			break;
-		case 1:
-			if (maze[row - 1][col] != WALL) {
-				row = row - 1;
-			}
-			break;
-		case 2:
-			if (maze[row][col + 1] != WALL) {
-				col = col + 1;
-			}
-			break;
-		case 3:
-			if (maze[row][col - 1] != WALL) {
-				col = col - 1;
-			}
-			break;
-		}*/
+	//	SearchInRoom(maze);
 		
 	}
 
 	if (isAttacking) {
+		SearchInRoom(maze);
 		// shoots more bullets than throws grenades
 		if (rand() % 4 == 0) {
 			// throw grenade
 		}
 		else {
+			if (fire)
+			{
+				if (bullet == nullptr || !bullet->getIsMoving())
+				{
+					bullet = new Bullet(col, row, (rand() % 360) * 3.14 / 180);
+					bullet->Fire();
+
+				}
+				if (bullet->getIsMoving())
+					bullet->Move(maze);
+			}
 			// shoot a bullet
 		}
 	}
@@ -160,6 +150,24 @@ bool NPC::hasArrivedToBase()
 	return false;
 }
 
+bool NPC::SearchInRoom(int maze[MAP_SIZE][MAP_SIZE])
+{
+	for (int i = 0; i < MAP_SIZE; i++)
+	{
+		for (int j = 0; j < MAP_SIZE; j++)
+		{
+			if (maze[i][j] == WALL || maze[i][j] == SPACE)
+				continue;
+			if (maze[i][j] != teamColor)
+			{
+				if (ManhattanDistance(row, col, i, j) < 15)
+					fire = true;
+			}
+		}
+	}
+	return false;
+}
+
 void NPC::CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, int targetType)
 {
 	while (!hasPath)
@@ -170,7 +178,7 @@ void NPC::CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, i
 			return;
 		}
 
-		maze[this->row][this->col] = teamColor;
+		//maze[this->row][this->col] = teamColor;
 		int row, col;
 
 		Cell* pCurrent = pqAStar.top();
@@ -256,6 +264,8 @@ void NPC::CleanMaze(int maze[MAP_SIZE][MAP_SIZE])
 
 void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE])
 {
+	CleanMaze(maze);
+
 	targetRow = rand() % MAP_SIZE;
 	targetCol = rand() % MAP_SIZE;
 	while (maze[targetRow][targetCol] != SPACE)
@@ -263,7 +273,6 @@ void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE])
 		targetRow = rand() % MAP_SIZE;
 		targetCol = rand() % MAP_SIZE;
 	}
-	CleanMaze(maze);
 	pqAStar = priority_queue<Cell*, vector<Cell*>, CmpCellF>();
 	pqAStar.push(new Cell(row, col, nullptr));
 
