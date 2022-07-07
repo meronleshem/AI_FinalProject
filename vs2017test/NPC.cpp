@@ -60,7 +60,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 			{
 				if (bullet == nullptr || !bullet->getIsMoving())
 				{
-					bullet = new Bullet(col, row, (rand() % 360) * 3.14 / 180);
+					bullet = new Bullet(row, col, (rand() % 360) * 3.14 / 180);
 					bullet->Fire();
 
 				}
@@ -165,6 +165,15 @@ bool NPC::SearchInRoom(int maze[MAP_SIZE][MAP_SIZE])
 			}
 		}
 	}
+
+	//for (int i = 0; i < MAP_SIZE; i++)
+	//{
+	//	for (int j = 0; j < MAP_SIZE; j++)
+	//	{
+	//		cout << maze[i][j] << " ";
+	//	}
+	//	cout << endl;
+	//}
 	return false;
 }
 
@@ -178,7 +187,7 @@ void NPC::CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, i
 			return;
 		}
 
-		//maze[this->row][this->col] = teamColor;
+		maze[this->row][this->col] = teamColor;
 		int row, col;
 
 		Cell* pCurrent = pqAStar.top();
