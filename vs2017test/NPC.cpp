@@ -27,15 +27,20 @@ NPC::~NPC()
 {
 }
 
-void NPC::GotBullet()
+void NPC::GotBullet(int num)
 {
-	hp -= 35;
-	cout << hp << endl;
+	hp -= rand() % 30 + 20;
+	string team = "Red";
+	if (teamColor == BLUE_TEAM_COLOR)
+		team = "Blue";
 	if (hp < 0)
 	{
 		isDead = true;
-		cout << "Dead" << endl;
+		cout << team << num << " Dead" << endl;
 	}
+	else
+		cout << team << num << " " << hp << " hp" << endl;
+	
 }
 
 void NPC::setTarget(double targetX, double targetY)
@@ -50,11 +55,11 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 		maze[row][col] = SPACE;
 		return;
 	}
-	if (isMoving && !fire) {
+	if (isMoving) {
 		// move npc to next cell by ai path
 		if (hasPath)
 		{
-			Sleep(10);
+			Sleep(20);
 			Move(maze);
 		}
 		else
@@ -65,7 +70,6 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 	}
 
 	if (isAttacking) {
-		
 		// shoots more bullets than throws grenades
 		if (rand() % 4 == 0) {
 			// throw grenade
@@ -182,10 +186,14 @@ bool NPC::SearchInRoom(int maze[MAP_SIZE][MAP_SIZE])
 				continue;
 			if (maze[i][j] != teamColor)
 			{
-				if (ManhattanDistance(row, col, i, j) < 15)
+				if (ManhattanDistance(row, col, i, j) < 50)
 				{
 					return true;
 					fire = true;
+					//targetRow = i;
+					//targetCol = j;
+					//pqAStar = priority_queue<Cell*, vector<Cell*>, CmpCellF>();
+					//pqAStar.push(new Cell(row, col, nullptr));
 				}
 			}
 		}
@@ -292,7 +300,23 @@ void NPC::CleanMaze(int maze[MAP_SIZE][MAP_SIZE])
 void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE])
 {
 	CleanMaze(maze);
-
+	//for (int i = 0; i < MAP_SIZE; i++)
+	//{
+	//	for (int j = 0; j < MAP_SIZE; j++)
+	//	{
+	//		if (maze[i][j] == WALL || maze[i][j] == SPACE)
+	//			continue;
+	//		if (maze[i][j] != teamColor)
+	//		{
+	//			if (ManhattanDistance(row, col, i, j) < 5)
+	//			{
+	//				targetRow = i;
+	//				targetCol = j;
+	//				break;
+	//			}
+	//		}
+	//	}
+	//}
 	targetRow = rand() % MAP_SIZE;
 	targetCol = rand() % MAP_SIZE;
 	while (maze[targetRow][targetCol] != SPACE)

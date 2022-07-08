@@ -10,6 +10,7 @@
 #include "Base.h"
 #include "Definitions.h"
 #include "Bullet.h"
+#include "Grenade.h"
 
 using namespace std;
 
@@ -36,6 +37,7 @@ private:
 	priority_queue<Cell*, vector<Cell*>, CmpCellF> pqAStar;
 	stack<int> path;
 	Bullet* bullet;
+	Grenade* grenade;
 	//State* pInterruptedState;
 
 public:
@@ -51,7 +53,7 @@ public:
 	int getTeamColor() { return teamColor; }
 	int getTargetX() { return targetRow; }
 	int getTargetY() { return targetCol; }
-	void GotBullet();
+	void GotBullet(int num);
 	State* getCurrentState() { return pCurrentState; }
 	Bullet* getBullet() { return bullet; }
 	void StopBulletAfterHit() { bullet = nullptr; }
