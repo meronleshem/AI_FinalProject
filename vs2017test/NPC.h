@@ -27,7 +27,7 @@ private:
 	int numOfBullets, numOfGrenades;
 
 	int row, col; // NPC's position
-	int targetRow, targetCol; // target's position
+	int targetRow, targetCol, targetInd; // target's position
 
 	bool isAttacking, isMoving;
 	bool atBase, goingToBase, goingToEnemy;
@@ -38,10 +38,11 @@ private:
 	stack<int> path;
 	Bullet* bullet;
 	Grenade* grenade;
+	NPC* oppTeam[NUM_OF_PLAYERS];
 	//State* pInterruptedState;
 
 public:
-	NPC(Base* pB, int x, int y, int teamColor);
+	NPC(Base* pB, int x, int y, int teamColor, NPC* oppTeam[]);
 	~NPC();
 
 
@@ -77,7 +78,7 @@ public:
 	int ManhattanDistance(int row, int col, int targetRow, int targetCol);
 	void FoundPath(Cell* pCurr, int maze[MAP_SIZE][MAP_SIZE]);
 	void CleanMaze(int maze[MAP_SIZE][MAP_SIZE]);
-	void NewTarget(int maze[MAP_SIZE][MAP_SIZE]);
+	void NewTarget(int maze[MAP_SIZE][MAP_SIZE], bool random);
 	void DoSomething(int maze[MAP_SIZE][MAP_SIZE]); // kind of MAIN function
 	void DrawMe();
 	double CalculateDistanceFromTarget();

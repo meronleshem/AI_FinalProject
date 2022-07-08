@@ -24,7 +24,6 @@ const int ROOMS_POSITIONS[][2] = {
 	{7 * MAP_SIZE / 9, 7 * MAP_SIZE / 9},
 	{MAP_SIZE / 2, MAP_SIZE / 2}
 };
-const int NUM_OF_PLAYERS = 3;
 
 
 int maze[MAP_SIZE][MAP_SIZE] = { 0 };
@@ -117,10 +116,10 @@ void AddNPCs()
 
 	for (int i = 0; i < NUM_OF_PLAYERS; i++) {
 		RandomPositionInRoom(&rooms[1], &randX, &randY);
-		redTeam[i] = new NPC(redBase, randY, randX, RED_TEAM_COLOR);
+		redTeam[i] = new NPC(redBase, randY, randX, RED_TEAM_COLOR, blueTeam);
 
 		RandomPositionInRoom(&rooms[2], &randX, &randY);
-		blueTeam[i] = new NPC(blueBase, randY, randX, BLUE_TEAM_COLOR);
+		blueTeam[i] = new NPC(blueBase, randY, randX, BLUE_TEAM_COLOR, redTeam);
 	}
 
 	maze[redBaseX][redBaseY] = SPACE;
@@ -156,8 +155,8 @@ void AddObstacles()
 			if (adjacentCol >= MAP_SIZE)
 				adjacentCol -= 2;
 		}
-		maze[row][col] = WALL;
-		maze[adjacentRow][adjacentCol];
+		//maze[col][row] = WALL;
+		maze[adjacentRow][adjacentCol] = WALL;
 	}
 
 	// adding a '+' shape of walls in the middle of each room
@@ -398,8 +397,9 @@ void FireBullet(NPC* npc, int targetColor , NPC* targetTeam[])
 				{
 					if (targetTeam[k]->GetRow() == i && targetTeam[k]->GetCol() == j)
 					{
-						targetTeam[k]->GotBullet();
+						targetTeam[k]->GotBullet(k);
 						npc->StopBulletAfterHit();
+						return;
 					}
 				}
 			}

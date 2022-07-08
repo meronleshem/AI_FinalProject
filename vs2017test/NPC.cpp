@@ -2,9 +2,11 @@
 #include "glut.h"
 #include "GetCloserToEnemy.h"
 
-NPC::NPC(Base* pB, int x, int y, int teamColor) :
+NPC::NPC(Base* pB, int x, int y, int teamColor, NPC* oppTeam[]) :
 	pBase(pB), row(x), col(y), teamColor(teamColor)
 {
+	for (int i = 0; i < NUM_OF_PLAYERS; i++)
+		this->oppTeam[i] = oppTeam[i];
 	this->hp = MAX_HP;
 	this->numOfBullets = rand() % MAX_NUM_OF_BULLETS;
 	this->numOfGrenades = rand() % MAX_NUM_OF_GRENADES;
@@ -55,47 +57,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 		maze[row][col] = SPACE;
 		return;
 	}
-	if (isMoving) {
-		// move npc to next cell by ai path
-		if (hasPath)
-		{
-			Sleep(20);
-			Move(maze);
-		}
-		else
-			CalcMove(maze, targetRow, targetCol, SPACE);
 
-	//	SearchInRoom(maze);
-		
-	}
-
-	if (isAttacking) {
-		// shoots more bullets than throws grenades
-		if (rand() % 4 == 0) {
-			// throw grenade
-		}
-		else {
-			// shoot a bullet
-			if (SearchInRoom(maze))
-			{
-				if (bullet == nullptr)
-				{
-					bullet = new Bullet(row, col, (rand() % 360) * 3.14 / 180);
-					bullet->Fire();
-				}
-			}
-			else
-			{
-				if (bullet != nullptr)
-				{
-					if (bullet->getIsMoving())
-						bullet->Move(maze);
-					else
-						bullet = nullptr;
-				}
-			}
-		}
-	}
 
 	if (atBase) {
 		if (hp < MAX_HP) {
@@ -117,30 +79,85 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 		}
 	}
 	else {
-		// not at base
-		if (((hp < LOW_HP) || (numOfBullets == 0 || numOfGrenades == 0)) && !goingToBase) {
-			// has low hp or missing ammo -> should go to base
-			pCurrentState->Transform(this);
-		}
-		else if (numOfBullets > 0 && numOfGrenades > 0) {
-			// has enough ammo
-			if (CalculateDistanceFromTarget() <= 7.5) {
-				// close enough to enemy & has ammo -> attack enemy
-				pCurrentState->Transform(this);
+		if (isMoving) {
+			// move npc to next cell by ai path
+			if (hasPath)
+			{
+				Sleep(20);
+				Move(maze);
 			}
-			else if (!goingToEnemy) {
-				// has ammon but enemy not close enough -> get closer to enemy
-				pCurrentState->Transform(this);
+			else
+				CalcMove(maze, targetRow, targetCol, SPACE);
+
+			//	SearchInRoom(maze);
+			if (numOfBullets > 0 && numOfGrenades > 0) {
+				// has enough ammo
+				if (CalculateDistanceFromTarget() <= 7.5) {
+					// close enough to enemy & has ammo -> attack enemy
+					pCurrentState->Transform(this);
+				}
+
 			}
-		}
-		else {
-			if (goingToBase && hasArrivedToBase()) {
-				// arrived to base
-				pCurrentState->Transform(this);
+
+			if (isAttacking) {
+				// shoots more bullets than throws grenades
+				if (rand() % 4 == 0) {
+					// throw grenade
+				}
+				else {
+					// shoot a bullet
+					if (SearchInRoom(maze))
+					{
+						if (bullet == nullptr)
+						{
+							bullet = new Bullet(row, col, (rand() % 360) * 3.14 / 180);
+							bullet->Fire();
+						}
+					}
+					else
+					{
+						if (bullet != nullptr)
+						{
+							if (bullet->getIsMoving())
+								bullet->Move(maze);
+							else
+								bullet = nullptr;
+						}
+					}
+				}
+				if (numOfBullets > 0 && numOfGrenades > 0) {
+					// has enough ammo
+					if (CalculateDistanceFromTarget() > 7.5) {
+						// close enough to enemy & has ammo -> attack enemy
+						pCurrentState->Transform(this);
+					}
+				}
+				// not at base
+				if (((hp < LOW_HP) || (numOfBullets == 0 || numOfGrenades == 0)) && !goingToBase) {
+					// has low hp or missing ammo -> should go to base
+					pCurrentState->Transform(this);
+				}
+				else if (numOfBullets > 0 && numOfGrenades > 0) {
+					// has enough ammo
+					if (CalculateDistanceFromTarget() <= 7.5) {
+						// close enough to enemy & has ammo -> attack enemy
+						pCurrentState->Transform(this);
+					}
+					else if (!goingToEnemy) {
+						// has ammon but enemy not close enough -> get closer to enemy
+						pCurrentState->Transform(this);
+					}
+				}
+				else {
+					if (goingToBase && hasArrivedToBase()) {
+						// arrived to base
+						pCurrentState->Transform(this);
+					}
+				}
 			}
+
 		}
 	}
-
 }
 
 void NPC::DrawMe()
@@ -207,9 +224,9 @@ void NPC::CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, i
 {
 	while (!hasPath)
 	{
-		if (pqAStar.empty() || pqAStar.size() > 1000) // nothing to do
+		if (pqAStar.empty() || pqAStar.size() > 5000) // nothing to do
 		{
-			NewTarget(maze);
+			NewTarget(maze, true);
 			return;
 		}
 
@@ -231,7 +248,7 @@ void NPC::CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, i
 			nextCol = col + COL_DIRECTIONS[i];
 
 			int nextCell = maze[nextRow][nextCol];
-			if (nextCell != SPACE)
+			if (nextCell == WALL || nextCell == GRAY)
 				continue;
 
 			if (nextRow == targetRow && nextCol == targetCol)
@@ -252,7 +269,7 @@ void NPC::Move(int maze[MAP_SIZE][MAP_SIZE])
 	if (path.empty())
 	{
 		hasPath = false;
-		NewTarget(maze);
+		NewTarget(maze, false);
 		return;
 	}
 	maze[this->row][this->col] = SPACE;
@@ -297,9 +314,16 @@ void NPC::CleanMaze(int maze[MAP_SIZE][MAP_SIZE])
 	}
 }
 
-void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE])
+void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE], bool random)
 {
 	CleanMaze(maze);
+	if(rand() % 100 < 10)
+		targetInd = rand() % 3;
+	if (oppTeam[targetInd] != nullptr && !oppTeam[targetInd]->isDead && !random)
+	{
+		targetRow = oppTeam[targetInd]->GetRow();
+		targetCol = oppTeam[targetInd]->GetCol();
+	}
 	//for (int i = 0; i < MAP_SIZE; i++)
 	//{
 	//	for (int j = 0; j < MAP_SIZE; j++)
@@ -308,22 +332,22 @@ void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE])
 	//			continue;
 	//		if (maze[i][j] != teamColor)
 	//		{
-	//			if (ManhattanDistance(row, col, i, j) < 5)
-	//			{
-	//				targetRow = i;
-	//				targetCol = j;
-	//				break;
-	//			}
+	//			targetRow = i;
+	//			targetCol = j;
 	//		}
 	//	}
 	//}
-	targetRow = rand() % MAP_SIZE;
-	targetCol = rand() % MAP_SIZE;
-	while (maze[targetRow][targetCol] != SPACE)
+	else
 	{
 		targetRow = rand() % MAP_SIZE;
 		targetCol = rand() % MAP_SIZE;
+		while (maze[targetRow][targetCol] != SPACE)
+		{
+			targetRow = rand() % MAP_SIZE;
+			targetCol = rand() % MAP_SIZE;
+		}
 	}
+
 	pqAStar = priority_queue<Cell*, vector<Cell*>, CmpCellF>();
 	pqAStar.push(new Cell(row, col, nullptr));
 

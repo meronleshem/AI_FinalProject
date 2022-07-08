@@ -1,5 +1,5 @@
 #pragma once
-const int MAP_SIZE = 50;
+const int MAP_SIZE = 40;
 const int WALL = 0;
 const int SPACE = 1;
 
@@ -15,5 +15,6 @@ const int BLUE_TEAM_COLOR = 60;
 const int MAX_HP = 100;
 const int LOW_HP = MAX_HP / 4;
 
+const int NUM_OF_PLAYERS = 3;
 const int MAX_NUM_OF_BULLETS = 20;
 const int MAX_NUM_OF_GRENADES = 5;
