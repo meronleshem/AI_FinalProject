@@ -57,6 +57,7 @@ public:
 	void GotBullet(int num);
 	State* getCurrentState() { return pCurrentState; }
 	Bullet* getBullet() { return bullet; }
+	Grenade* getGrenade() { return grenade; }
 	void StopBulletAfterHit() { bullet = nullptr; }
 	//State* getInterruptedState() { return pInterruptedState; }
 

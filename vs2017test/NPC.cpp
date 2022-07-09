@@ -9,8 +9,8 @@ NPC::NPC(Base* pB, int x, int y, int teamColor, NPC* oppTeam[]) :
 		this->oppTeam[i] = oppTeam[i];
 	targetInd = rand() % 3;
 	this->hp = MAX_HP;
-	this->numOfBullets = rand() % MAX_NUM_OF_BULLETS;
-	this->numOfGrenades = rand() % MAX_NUM_OF_GRENADES;
+	this->numOfBullets = 50;
+	this->numOfGrenades = 5;
 
 	this->atBase = false;
 	this->isAttacking = false;
@@ -104,25 +104,21 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 				// shoots more bullets than throws grenades
 				if (rand() % 10 == 0) {
 					// throw grenade
+					if (numOfGrenades > 0)
+					{
+						grenade = new Grenade(row, col);
+						grenade->Explode();
+						numOfGrenades--;
+					}
 				}
 				else {
 					// shoot a bullet
-					//if (bullet == nullptr)
-					
+					if (numOfBullets > 0)
+					{
 						bullet = new Bullet(row, col, (rand() % 360) * 3.14 / 180);
 						bullet->Fire();
-					
-				
-					/*else
-					{
-						if (bullet != nullptr)
-						{
-							if (bullet->getIsMoving())
-								bullet->Move(maze);
-							else
-								bullet = nullptr;
-						}
-					}*/
+						numOfBullets--;
+					}
 				}
 				if (numOfBullets > 0 && numOfGrenades > 0) {
 					// has enough ammo

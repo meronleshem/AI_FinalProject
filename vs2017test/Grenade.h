@@ -1,7 +1,7 @@
 #pragma once
 #include "Bullet.h"
 
-const int NUM_BULLETS = 100;
+const int NUM_BULLETS = 50;
 
 class Grenade
 {
@@ -17,7 +17,7 @@ public:
 	bool getIsExploded() { return isExploded; }
 	void Explode();
 	void Exploding(int maze[MAP_SIZE][MAP_SIZE]);
-	void show();
+	void show(int teamColor);
 	void SimulateExplosion(int maze[MAP_SIZE][MAP_SIZE], double security_map[MAP_SIZE][MAP_SIZE], double damage);
 	void SimulateVisibility(int maze[MAP_SIZE][MAP_SIZE], double visibility_map[MAP_SIZE][MAP_SIZE]);
 };

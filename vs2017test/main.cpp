@@ -423,6 +423,13 @@ void Display()
 		if(blueTeam[i]->getBullet() != nullptr)
 			blueTeam[i]->getBullet()->show(BLUE_TEAM_COLOR);
 
+		if (redTeam[i]->getGrenade() != nullptr)
+			redTeam[i]->getGrenade()->show(RED_TEAM_COLOR);
+
+		if (blueTeam[i]->getGrenade() != nullptr)
+			blueTeam[i]->getGrenade()->show(BLUE_TEAM_COLOR);
+
+
 	}
 
 
@@ -431,7 +438,6 @@ void Display()
 
 void Idle()
 {
-	maze[0][0] = SPACE;
 	if (underConstruction)
 	{
 		DigPath(r1, r2);
@@ -476,6 +482,21 @@ void Idle()
 			blueTeam[i]->getBullet()->Move(maze);
 			FireBullet(blueTeam[i], RED_TEAM_COLOR, redTeam);
 		}
+
+		while (redTeam[i]->getGrenade() != nullptr && redTeam[i]->getGrenade()->getIsExploded())
+		{
+			//redTeam[i]->getBullet()->show(RED_TEAM_COLOR);
+			redTeam[i]->getGrenade()->Exploding(maze);
+			//FireBullet(redTeam[i], BLUE_TEAM_COLOR, blueTeam);
+		}
+
+		while (blueTeam[i]->getGrenade() != nullptr && blueTeam[i]->getGrenade()->getIsExploded())
+		{
+			//redTeam[i]->getBullet()->show(RED_TEAM_COLOR);
+			blueTeam[i]->getGrenade()->Exploding(maze);
+			//FireBullet(redTeam[i], BLUE_TEAM_COLOR, blueTeam);
+		}
+
 
 	}
 

@@ -33,14 +33,29 @@ void Grenade::Explode()
 void Grenade::Exploding(int maze[MAP_SIZE][MAP_SIZE])
 {
 	if (isExploded)
+	{
 		for (int i = 0; i < NUM_BULLETS; i++)
-			bullets[i]->Move(maze);
+		{
+			if (bullets[i]->getIsMoving())
+				bullets[i]->Move(maze);
+		}
+
+		isExploded = false;
+		for (int i = 0; i < NUM_BULLETS; i++)
+		{
+			if (bullets[i]->getIsMoving())
+			{
+				isExploded = true;
+				break;
+			}
+		}
+	}
 }
 
-void Grenade::show()
+void Grenade::show(int teamColor)
 {
 	for (int i = 0; i < NUM_BULLETS; i++)
-		bullets[i]->show(RED_TEAM_COLOR);
+		bullets[i]->show(teamColor);
 
 }
 
