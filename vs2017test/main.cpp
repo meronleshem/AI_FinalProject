@@ -383,10 +383,10 @@ void DrawSquare(int i, int j)
 	glEnd();
 }
 
-void FireBullet(NPC* npc, int targetColor , NPC* targetTeam[])
+void FireBullet(NPC* npc, Bullet* b, int targetColor , NPC* targetTeam[])
 {
-	int brow = npc->getBullet()->GetRow();
-	int bcol = npc->getBullet()->GetCol();
+	int brow = b->GetRow();
+	int bcol = b->GetCol();
 	for (int i = brow - 5; i < brow + 5; i++)
 	{
 		for (int j = bcol - 5; j < bcol + 5; j++)
@@ -472,7 +472,7 @@ void Idle()
 		{
 			//redTeam[i]->getBullet()->show(RED_TEAM_COLOR);
 			redTeam[i]->getBullet()->Move(maze);
-			FireBullet(redTeam[i], BLUE_TEAM_COLOR, blueTeam);
+			FireBullet(redTeam[i], redTeam[i]->getBullet(), BLUE_TEAM_COLOR, blueTeam);
 		}
 
 
@@ -480,7 +480,7 @@ void Idle()
 		{
 			//blueTeam[i]->getBullet()->show(BLUE_TEAM_COLOR);
 			blueTeam[i]->getBullet()->Move(maze);
-			FireBullet(blueTeam[i], RED_TEAM_COLOR, redTeam);
+			FireBullet(blueTeam[i], blueTeam[i]->getBullet(), RED_TEAM_COLOR, redTeam);
 		}
 
 		while (redTeam[i]->getGrenade() != nullptr && redTeam[i]->getGrenade()->getIsExploded())
@@ -488,12 +488,23 @@ void Idle()
 			//redTeam[i]->getBullet()->show(RED_TEAM_COLOR);
 			redTeam[i]->getGrenade()->Exploding(maze);
 			//FireBullet(redTeam[i], BLUE_TEAM_COLOR, blueTeam);
+			Bullet** bullets = redTeam[i]->getGrenade()->getBullets();
+			for (int k = 0; k < 50; k++)
+			{
+				FireBullet(redTeam[i], bullets[k], BLUE_TEAM_COLOR, blueTeam);
+			}
 		}
 
 		while (blueTeam[i]->getGrenade() != nullptr && blueTeam[i]->getGrenade()->getIsExploded())
 		{
 			//redTeam[i]->getBullet()->show(RED_TEAM_COLOR);
 			blueTeam[i]->getGrenade()->Exploding(maze);
+			Bullet** bullets = blueTeam[i]->getGrenade()->getBullets();
+			for (int k = 0; k < 50; k++)
+			{
+				FireBullet(blueTeam[i], bullets[k], RED_TEAM_COLOR, redTeam);
+			}
+				
 			//FireBullet(redTeam[i], BLUE_TEAM_COLOR, blueTeam);
 		}
 

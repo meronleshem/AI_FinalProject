@@ -15,6 +15,7 @@ public:
 	Grenade(double x, double y);
 	~Grenade();
 	bool getIsExploded() { return isExploded; }
+	Bullet** getBullets() { return bullets; }
 	void Explode();
 	void Exploding(int maze[MAP_SIZE][MAP_SIZE]);
 	void show(int teamColor);

@@ -32,6 +32,9 @@ NPC::~NPC()
 
 void NPC::GotBullet(int num)
 {
+	if (isDead)
+		return;
+
 	hp -= rand() % 30 + 20;
 	string team = "Red";
 	if (teamColor == BLUE_TEAM_COLOR)
@@ -108,7 +111,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 					{
 						grenade = new Grenade(row, col);
 						grenade->Explode();
-						numOfGrenades--;
+					//	numOfGrenades--;
 					}
 				}
 				else {
