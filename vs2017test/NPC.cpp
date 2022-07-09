@@ -7,6 +7,7 @@ NPC::NPC(Base* pB, int x, int y, int teamColor, NPC* oppTeam[]) :
 {
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 		this->oppTeam[i] = oppTeam[i];
+	targetInd = rand() % 3;
 	this->hp = MAX_HP;
 	this->numOfBullets = rand() % MAX_NUM_OF_BULLETS;
 	this->numOfGrenades = rand() % MAX_NUM_OF_GRENADES;
@@ -35,7 +36,7 @@ void NPC::GotBullet(int num)
 	string team = "Red";
 	if (teamColor == BLUE_TEAM_COLOR)
 		team = "Blue";
-	if (hp < 0)
+	if (hp <= 0)
 	{
 		isDead = true;
 		cout << team << num << " Dead" << endl;
@@ -101,20 +102,18 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 
 			if (isAttacking) {
 				// shoots more bullets than throws grenades
-				if (rand() % 4 == 0) {
+				if (rand() % 10 == 0) {
 					// throw grenade
 				}
 				else {
 					// shoot a bullet
-					if (SearchInRoom(maze))
-					{
-						if (bullet == nullptr)
-						{
-							bullet = new Bullet(row, col, (rand() % 360) * 3.14 / 180);
-							bullet->Fire();
-						}
-					}
-					else
+					//if (bullet == nullptr)
+					
+						bullet = new Bullet(row, col, (rand() % 360) * 3.14 / 180);
+						bullet->Fire();
+					
+				
+					/*else
 					{
 						if (bullet != nullptr)
 						{
@@ -123,7 +122,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 							else
 								bullet = nullptr;
 						}
-					}
+					}*/
 				}
 				if (numOfBullets > 0 && numOfGrenades > 0) {
 					// has enough ammo
@@ -207,10 +206,6 @@ bool NPC::SearchInRoom(int maze[MAP_SIZE][MAP_SIZE])
 				{
 					return true;
 					fire = true;
-					//targetRow = i;
-					//targetCol = j;
-					//pqAStar = priority_queue<Cell*, vector<Cell*>, CmpCellF>();
-					//pqAStar.push(new Cell(row, col, nullptr));
 				}
 			}
 		}

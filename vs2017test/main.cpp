@@ -413,21 +413,19 @@ void Display()
 	
 	ShowMaze();
 	ShowNPCs();
+
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
-		if (redTeam[i]->getBullet() != nullptr)
-		{
+		Sleep(15);
+		if(redTeam[i]->getBullet() != nullptr)
 			redTeam[i]->getBullet()->show(RED_TEAM_COLOR);
-			FireBullet(redTeam[i], BLUE_TEAM_COLOR, blueTeam);
-		}
 
-		if (blueTeam[i]->getBullet() != nullptr)
-		{
+		if(blueTeam[i]->getBullet() != nullptr)
 			blueTeam[i]->getBullet()->show(BLUE_TEAM_COLOR);
-			FireBullet(blueTeam[i], RED_TEAM_COLOR, redTeam);
-		}
 
 	}
+
+
 	glutSwapBuffers(); // show all
 }
 
@@ -462,7 +460,24 @@ void Idle()
 	
 	}
 
+	for (int i = 0; i < NUM_OF_PLAYERS; i++)
+	{
+		while (redTeam[i]->getBullet() != nullptr && redTeam[i]->getBullet()->getIsMoving())
+		{
+			//redTeam[i]->getBullet()->show(RED_TEAM_COLOR);
+			redTeam[i]->getBullet()->Move(maze);
+			FireBullet(redTeam[i], BLUE_TEAM_COLOR, blueTeam);
+		}
 
+
+		while (blueTeam[i]->getBullet() != nullptr && blueTeam[i]->getBullet()->getIsMoving())
+		{
+			//blueTeam[i]->getBullet()->show(BLUE_TEAM_COLOR);
+			blueTeam[i]->getBullet()->Move(maze);
+			FireBullet(blueTeam[i], RED_TEAM_COLOR, redTeam);
+		}
+
+	}
 
 	//Sleep(0);
 
