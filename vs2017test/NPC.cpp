@@ -299,17 +299,17 @@ void NPC::Move(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPo
 	this->row = path.top();
 	path.pop();
 
-	if (maze[row][col] == HP)
+	if (maze[col][row] == HP)
 	{
-		maze[row][col] = SPACE;
+		maze[col][row] = SPACE;
 
 		cout << "HP taken" << endl;
 		hp += 30;
 		cout << hp << endl;
 		for (int i = 0; i < allHp.size(); i++)
 		{
-			int hpRow = allHp[i].row;
-			int hpCol = allHp[i].col;
+			int hpRow = allHp[i].col;
+			int hpCol = allHp[i].row;
 
 			if (row == hpRow && col == hpCol && !allHp[i].isTaken)
 			{
@@ -318,17 +318,17 @@ void NPC::Move(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPo
 			}
 		}
 	}
-	else if (maze[row][col] == AMMO)
+	else if (maze[col][row] == AMMO)
 	{
-		maze[row][col] = SPACE;
+		maze[col][row] = SPACE;
 
 		cout << "Ammo taken" << endl;
 		numOfBullets += 50;
 		cout << numOfBullets << endl;
 		for (int i = 0; i < allAmmo.size(); i++)
 		{
-			int ammoRow = allAmmo[i].row;
-			int ammoCol = allAmmo[i].col;
+			int ammoRow = allAmmo[i].col;
+			int ammoCol = allAmmo[i].row;
 			
 			if (row == ammoRow && col == ammoCol && !allAmmo[i].isTaken)
 			{
