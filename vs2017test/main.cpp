@@ -29,6 +29,9 @@ const int ROOMS_POSITIONS[][2] = {
 int maze[MAP_SIZE][MAP_SIZE] = { 0 };
 double security_map[MAP_SIZE][MAP_SIZE] = { 0 };
 double visibility_map[MAP_SIZE][MAP_SIZE] = { 0 };
+vector<HPpos> allHP;
+vector<AmmoPos> allAmmo;
+
 
 Room rooms[NUM_ROOMS];
 bool underConstruction = true;
@@ -39,7 +42,7 @@ Base* blueBase = nullptr;
 NPC* redTeam[NUM_OF_PLAYERS] = { nullptr };
 NPC* blueTeam[NUM_OF_PLAYERS] = { nullptr };
 
-
+void ShowHpAndAmmo();
 void AddNPCs();
 void AddObstacles();
 
@@ -61,8 +64,7 @@ void RestorePath(Cell* ps);
 void SetupRooms();
 void ShowMaze();
 void ShowNPCs();
-
-
+void AddHPandAmmo();
 
 
 
@@ -100,6 +102,8 @@ void Init()
 
 	AddObstacles();
 
+	AddHPandAmmo();
+
 	AddNPCs();
 }
 
@@ -134,6 +138,43 @@ void RandomPositionInRoom(Room* pr, int* px, int* py)
 		*px = randNum / pr->getWidth() + pr->getCenterX();
 		*py = randNum % pr->getWidth() + pr->getCenterY();
 	} while (maze[*px][*py] == WALL);
+}
+
+void AddHPandAmmo()
+{
+	int top, bottom, left, right;
+	
+	for (int i = 0; i < NUM_ROOMS; i++)
+	{
+		top = rooms[i].getCenterY() + rooms[i].getHeight() / 2;
+		bottom = rooms[i].getCenterY() - rooms[i].getHeight() / 2;
+		left = rooms[i].getCenterY() - rooms[i].getWidth() / 2;
+		right = rooms[i].getCenterY() + rooms[i].getWidth() / 2;
+
+		int x, y;
+		for (int i = 0; i < 2; i++)
+		{
+			x = rand() % (top - bottom + 1) + bottom;
+			y = rand() % (right - left + 1) + left;
+			AmmoPos ap;
+			ap.col = y;
+			ap.row = x;
+			ap.isTaken = false;
+			allAmmo.push_back(ap);
+		}
+
+		for (int i = 0; i < 2; i++)
+		{
+			x = rand() % (top - bottom + 1) + bottom;
+			y = rand() % (right - left + 1) + left;
+			HPpos hp;
+			hp.col = y;
+			hp.row = x;
+			hp.isTaken = false;
+			allHP.push_back(hp);
+		}
+	}
+
 }
 
 void AddObstacles()
@@ -342,9 +383,34 @@ void ShowNPCs()
 	}
 }
 
+void ShowHpAndAmmo()
+{
+	for (int i = 0; i < allHP.size(); i++)
+	{
+		if (allHP[i].isTaken)
+		{
+			maze[allHP[i].row][allHP[i].col] = SPACE;
+			continue;
+		}
+		maze[allHP[i].row][allHP[i].col] = HP;
+	}
+
+	for (int i = 0; i < allAmmo.size(); i++)
+	{
+		if (allAmmo[i].isTaken)
+		{
+			maze[allAmmo[i].row][allAmmo[i].col] = SPACE;
+			continue;
+		}
+		maze[allAmmo[i].row][allAmmo[i].col] = AMMO;
+	}
+
+}
 void ShowMaze() 
 {
 	int i, j;
+
+	ShowHpAndAmmo();
 
 	for (i = 0; i < MAP_SIZE; i++) {
 
@@ -358,6 +424,12 @@ void ShowMaze()
 				break;
 			case GRAY:
 				glColor3d(1, 1, 1);
+				break;
+			case AMMO:
+				glColor3d(0, 1, 0);
+				break;
+			case HP:
+				glColor3d(1, 0, 1);
 				break;
 			case SPACE:
 				double d = security_map[i][j];
@@ -456,11 +528,11 @@ void Idle()
 	{
 		for (int i = 0; i < NUM_OF_PLAYERS; i++) {
 			if (redTeam[i] != nullptr) {
-				redTeam[i]->DoSomething(maze);
+				redTeam[i]->DoSomething(maze, allHP, allAmmo);
 		
 			}
 			if (blueTeam[i] != nullptr) {
-				blueTeam[i]->DoSomething(maze);
+				blueTeam[i]->DoSomething(maze, allHP, allAmmo);
 			}
 		}
 	

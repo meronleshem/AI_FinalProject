@@ -54,7 +54,7 @@ void NPC::setTarget(double targetX, double targetY)
 
 }
 
-void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
+void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPos>& allAmmo)
 {
 	if (isDead)
 	{
@@ -62,8 +62,8 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 		return;
 	}
 
-
-	if (atBase) {
+	if (atBase) 
+	{
 		if (hp < MAX_HP) {
 			// recover
 			if (getBase()->useHealthKit()) {
@@ -82,80 +82,90 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE])
 			pCurrentState->Transform(this);
 		}
 	}
-	else {
-		if (isMoving) {
+	else 
+	{
+		if (isMoving)
+		{
 			// move npc to next cell by ai path
 			if (hasPath)
 			{
 				Sleep(20);
-				Move(maze);
+				Move(maze, allHp, allAmmo);
 			}
 			else
 				CalcMove(maze, targetRow, targetCol, SPACE);
 
-			//	SearchInRoom(maze);
-			if (numOfBullets > 0 && numOfGrenades > 0) {
+			if (numOfBullets > 0 && numOfGrenades > 0) 
+			{
 				// has enough ammo
-				if (CalculateDistanceFromTarget() <= 7.5) {
+				if (CalculateDistanceFromTarget() <= 7.5)
+				{
 					// close enough to enemy & has ammo -> attack enemy
 					pCurrentState->Transform(this);
 				}
 
 			}
+			return;
+		}
 
-			if (isAttacking) {
-				// shoots more bullets than throws grenades
-				if (rand() % 10 == 0) {
-					// throw grenade
-					if (numOfGrenades > 0)
-					{
-						grenade = new Grenade(row, col);
-						grenade->Explode();
+		if (isAttacking)
+		{
+			// shoots more bullets than throws grenades
+			if (rand() % 10 == 0) {
+				// throw grenade
+				if (numOfGrenades > 0)
+				{
+					grenade = new Grenade(row, col);
+					grenade->Explode();
 					//	numOfGrenades--;
-					}
-				}
-				else {
-					// shoot a bullet
-					if (numOfBullets > 0)
-					{
-						bullet = new Bullet(row, col, (rand() % 360) * 3.14 / 180);
-						bullet->Fire();
-						numOfBullets--;
-					}
-				}
-				if (numOfBullets > 0 && numOfGrenades > 0) {
-					// has enough ammo
-					if (CalculateDistanceFromTarget() > 7.5) {
-						// close enough to enemy & has ammo -> attack enemy
-						pCurrentState->Transform(this);
-					}
-				}
-				// not at base
-				if (((hp < LOW_HP) || (numOfBullets == 0 || numOfGrenades == 0)) && !goingToBase) {
-					// has low hp or missing ammo -> should go to base
-					pCurrentState->Transform(this);
-				}
-				else if (numOfBullets > 0 && numOfGrenades > 0) {
-					// has enough ammo
-					if (CalculateDistanceFromTarget() <= 7.5) {
-						// close enough to enemy & has ammo -> attack enemy
-						pCurrentState->Transform(this);
-					}
-					else if (!goingToEnemy) {
-						// has ammon but enemy not close enough -> get closer to enemy
-						pCurrentState->Transform(this);
-					}
-				}
-				else {
-					if (goingToBase && hasArrivedToBase()) {
-						// arrived to base
-						pCurrentState->Transform(this);
-					}
 				}
 			}
-
+			else {
+				// shoot a bullet
+				if (numOfBullets > 0)
+				{
+					//calc angel between shooter to target
+					double angle = atan2(targetCol - col, targetRow - row) * 180 / 3.14;
+					bullet = new Bullet(row, col, angle);
+					bullet->Fire();
+					//numOfBullets--;
+					
+				}
+			}
+				//Check if the target is far
+			if (CalculateDistanceFromTarget() > 7.5)
+			{
+				//Keep searching
+				pCurrentState->Transform(this);
+			}
+			
+			return;
 		}
+		// not at base
+		if (((hp < LOW_HP) || (numOfBullets == 0 || numOfGrenades == 0)) && !goingToBase) {
+			// has low hp or missing ammo -> should go to base
+			pCurrentState->Transform(this);
+		}
+		else if (numOfBullets > 0 && numOfGrenades > 0) {
+			// has enough ammo
+			if (CalculateDistanceFromTarget() <= 7.5) {
+				// close enough to enemy & has ammo -> attack enemy
+				pCurrentState->Transform(this);
+			}
+			else if (!goingToEnemy) {
+				// has ammon but enemy not close enough -> get closer to enemy
+				pCurrentState->Transform(this);
+			}
+		}
+		else {
+			if (goingToBase && hasArrivedToBase()) {
+				// arrived to base
+				pCurrentState->Transform(this);
+			}
+		}
+
 	}
+	
 }
 
 void NPC::DrawMe()
@@ -181,7 +191,23 @@ void NPC::DrawMe()
 
 double NPC::CalculateDistanceFromTarget()
 {
-	return sqrt(pow(row - targetRow, 2) + pow(col - targetCol, 2));
+	int minRange = INT_MAX;
+	for (int i = 0; i < NUM_OF_PLAYERS; i++)
+	{
+		if (oppTeam[i] == nullptr)
+			continue;
+
+		if (oppTeam[i]->GetIsDead())
+			continue;
+
+		int trow = oppTeam[i]->GetRow();
+		int tcol = oppTeam[i]->GetCol();
+		int currRange = sqrt(pow(row - trow, 2) + pow(col - tcol, 2));
+		if (currRange < minRange)
+			minRange = currRange;
+	}
+
+	return minRange;
 }
 
 bool NPC::hasArrivedToBase()
@@ -258,7 +284,7 @@ void NPC::CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, i
 		}
 	}
 }
-void NPC::Move(int maze[MAP_SIZE][MAP_SIZE])
+void NPC::Move(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPos>& allAmmo)
 {
 	if (path.empty())
 	{
@@ -272,6 +298,45 @@ void NPC::Move(int maze[MAP_SIZE][MAP_SIZE])
 	path.pop();
 	this->row = path.top();
 	path.pop();
+
+	if (maze[row][col] == HP)
+	{
+		maze[row][col] = SPACE;
+
+		cout << "HP taken" << endl;
+		hp += 30;
+		cout << hp << endl;
+		for (int i = 0; i < allHp.size(); i++)
+		{
+			int hpRow = allHp[i].row;
+			int hpCol = allHp[i].col;
+
+			if (row == hpRow && col == hpCol && !allHp[i].isTaken)
+			{
+				allHp[i].isTaken = true;
+				return;
+			}
+		}
+	}
+	else if (maze[row][col] == AMMO)
+	{
+		maze[row][col] = SPACE;
+
+		cout << "Ammo taken" << endl;
+		numOfBullets += 50;
+		cout << numOfBullets << endl;
+		for (int i = 0; i < allAmmo.size(); i++)
+		{
+			int ammoRow = allAmmo[i].row;
+			int ammoCol = allAmmo[i].col;
+			
+			if (row == ammoRow && col == ammoCol && !allAmmo[i].isTaken)
+			{
+				allAmmo[i].isTaken = true;
+				return;
+			}
+		}
+	}
 
 	//maze[this->row][this->col] = teamColor;
 }
@@ -318,19 +383,7 @@ void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE], bool random)
 		targetRow = oppTeam[targetInd]->GetRow();
 		targetCol = oppTeam[targetInd]->GetCol();
 	}
-	//for (int i = 0; i < MAP_SIZE; i++)
-	//{
-	//	for (int j = 0; j < MAP_SIZE; j++)
-	//	{
-	//		if (maze[i][j] == WALL || maze[i][j] == SPACE)
-	//			continue;
-	//		if (maze[i][j] != teamColor)
-	//		{
-	//			targetRow = i;
-	//			targetCol = j;
-	//		}
-	//	}
-	//}
+
 	else
 	{
 		targetRow = rand() % MAP_SIZE;

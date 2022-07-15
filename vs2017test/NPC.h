@@ -59,6 +59,7 @@ public:
 	Bullet* getBullet() { return bullet; }
 	Grenade* getGrenade() { return grenade; }
 	void StopBulletAfterHit() { bullet = nullptr; }
+	bool GetIsDead() { return isDead; }
 	//State* getInterruptedState() { return pInterruptedState; }
 
 
@@ -75,12 +76,12 @@ public:
 	void setTarget(double targetX, double targetY);
 
 	void CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, int targetType);
-	void Move(int maze[MAP_SIZE][MAP_SIZE]);
+	void Move(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPos>& allAmmo);
 	int ManhattanDistance(int row, int col, int targetRow, int targetCol);
 	void FoundPath(Cell* pCurr, int maze[MAP_SIZE][MAP_SIZE]);
 	void CleanMaze(int maze[MAP_SIZE][MAP_SIZE]);
 	void NewTarget(int maze[MAP_SIZE][MAP_SIZE], bool random);
-	void DoSomething(int maze[MAP_SIZE][MAP_SIZE]); // kind of MAIN function
+	void DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPos>& allAmmo); // kind of MAIN function
 	void DrawMe();
 	double CalculateDistanceFromTarget();
 	bool hasArrivedToBase();

@@ -2,6 +2,8 @@
 const int MAP_SIZE = 40;
 const int WALL = 0;
 const int SPACE = 1;
+const int AMMO = 2;
+const int HP = 3;
 
 const int GRAY = 30;
 
@@ -18,3 +20,17 @@ const int LOW_HP = MAX_HP / 4;
 const int NUM_OF_PLAYERS = 3;
 const int MAX_NUM_OF_BULLETS = 20;
 const int MAX_NUM_OF_GRENADES = 5;
+
+struct HPpos
+{
+	int row;
+	int col;
+	bool isTaken;
+};
+
+struct AmmoPos
+{
+	int row;
+	int col;
+	bool isTaken;
+};
