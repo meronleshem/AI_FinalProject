@@ -123,10 +123,12 @@
     <ClCompile Include="Cell.cpp" />
     <ClCompile Include="CompareCells.cpp" />
     <ClCompile Include="GetCloserToEnemy.cpp" />
+    <ClCompile Include="GetHpAndAmmo.cpp" />
     <ClCompile Include="GoToBase.cpp" />
     <ClCompile Include="Grenade.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NPC.cpp" />
+    <ClCompile Include="PassHpAndAmmo.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Base.cpp" />
     <ClCompile Include="StayAtBase.cpp" />
@@ -138,10 +140,12 @@
     <ClInclude Include="CompareCells.h" />
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="GetCloserToEnemy.h" />
+    <ClInclude Include="GetHpAndAmmo.h" />
     <ClInclude Include="glut.h" />
     <ClInclude Include="GoToBase.h" />
     <ClInclude Include="Grenade.h" />
     <ClInclude Include="NPC.h" />
+    <ClInclude Include="PassHpAndAmmo.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="Base.h" />

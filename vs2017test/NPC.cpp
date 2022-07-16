@@ -1,6 +1,7 @@
 ﻿#include "NPC.h"
 #include "glut.h"
 #include "GetCloserToEnemy.h"
+#include "GetHpAndAmmo.h"
 
 NPC::NPC(Base* pB, int x, int y, int teamColor, NPC* oppTeam[]) :
 	pBase(pB), row(x), col(y), teamColor(teamColor)
@@ -9,8 +10,8 @@ NPC::NPC(Base* pB, int x, int y, int teamColor, NPC* oppTeam[]) :
 		this->oppTeam[i] = oppTeam[i];
 	targetInd = rand() % 3;
 	this->hp = MAX_HP;
-	this->numOfBullets = 50;
-	this->numOfGrenades = 5;
+	this->numOfBullets = 500;
+	this->numOfGrenades = 3;
 
 	this->atBase = false;
 	this->isAttacking = false;
@@ -54,11 +55,38 @@ void NPC::setTarget(double targetX, double targetY)
 
 }
 
+void NPC::setAsCarrier()
+{
+	isCarrier = true;
+	pCurrentState = new GetHpAndAmmo();
+}
+
 void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPos>& allAmmo)
 {
 	if (isDead)
 	{
 		maze[row][col] = SPACE;
+		return;
+	}
+
+	if(isCarrier)
+	{
+		if (isGetHPandAmmo)
+		{
+			if(rand() % 100 < 30)
+				SearchForHPandAmmo(allHp, allAmmo);
+		}
+		if (isMoving)
+		{
+			// move npc to next cell by ai path
+			if (hasPath)
+			{
+				Sleep(20);
+				Move(maze, allHp, allAmmo);
+			}
+			else
+				CalcMove(maze, targetRow, targetCol, SPACE);
+		}
 		return;
 	}
 
@@ -111,13 +139,13 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector
 		if (isAttacking)
 		{
 			// shoots more bullets than throws grenades
-			if (rand() % 10 == 0) {
+			if (rand() % 100 < 10) {
 				// throw grenade
 				if (numOfGrenades > 0)
 				{
 					grenade = new Grenade(row, col);
 					grenade->Explode();
-					//	numOfGrenades--;
+					numOfGrenades--;
 				}
 			}
 			else {
@@ -128,7 +156,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector
 					double angle = atan2(targetCol - col, targetRow - row) * 180 / 3.14;
 					bullet = new Bullet(row, col, angle);
 					bullet->Fire();
-					//numOfBullets--;
+					numOfBullets--;
 					
 				}
 			}
@@ -238,6 +266,38 @@ bool NPC::SearchInRoom(int maze[MAP_SIZE][MAP_SIZE])
 
 	fire = false;
 	return false;
+}
+
+void NPC::SearchForTeammate()
+{
+
+}
+
+void NPC::SearchForHPandAmmo(vector<HPpos>& allHp, vector<AmmoPos>& allAmmo)
+{
+	int choice = rand() % 2;
+	if (choice == 0)
+	{
+		for (int i = 0; i < allHp.size(); i++)
+		{
+			if (!allHp[i].isTaken)
+			{
+				targetRow = allHp[i].col;
+				targetCol = allHp[i].row;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < allAmmo.size(); i++)
+		{
+			if (!allAmmo[i].isTaken)
+			{
+				targetRow = allAmmo[i].col;
+				targetCol = allAmmo[i].row;
+			}
+		}
+	}
 }
 
 void NPC::CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, int targetType)
@@ -376,9 +436,18 @@ void NPC::CleanMaze(int maze[MAP_SIZE][MAP_SIZE])
 void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE], bool random)
 {
 	CleanMaze(maze);
-	if(rand() % 100 < 10)
-		targetInd = rand() % 3;
-	if (oppTeam[targetInd] != nullptr && !oppTeam[targetInd]->isDead && !random)
+
+	if (isCarrier)
+	{
+		return;
+	}
+
+	if (oppTeam[targetInd] != nullptr && oppTeam[targetInd]->isDead)
+	{
+		while(oppTeam[targetInd] != nullptr && oppTeam[targetInd]->isDead)
+			targetInd = rand() % 3;
+	}
+	if (oppTeam[targetInd] != nullptr && !random)
 	{
 		targetRow = oppTeam[targetInd]->GetRow();
 		targetCol = oppTeam[targetInd]->GetCol();

@@ -33,6 +33,8 @@ private:
 	bool atBase, goingToBase, goingToEnemy;
 	bool hasPath, fire;
 	bool isDead;
+	bool isCarrier;
+	bool isGetHPandAmmo, isPassHPandAmmo;
 	State* pCurrentState;
 	priority_queue<Cell*, vector<Cell*>, CmpCellF> pqAStar;
 	stack<int> path;
@@ -60,6 +62,7 @@ public:
 	Grenade* getGrenade() { return grenade; }
 	void StopBulletAfterHit() { bullet = nullptr; }
 	bool GetIsDead() { return isDead; }
+	bool GetIsCarrier() { return isCarrier; }
 	//State* getInterruptedState() { return pInterruptedState; }
 
 
@@ -69,11 +72,14 @@ public:
 	void setAtBase(bool value) { atBase = value; }
 	void setGoingToBase(bool value) { goingToBase = value; }
 	void setGoingToEnemy(bool value) { goingToEnemy = value; }
+	void setGetHPandAmmo(bool value) { isGetHPandAmmo = value; }
+	void setPassHPandAmmo(bool value) { isPassHPandAmmo = value; }
 	void setCurrentState(State* ps) { pCurrentState = ps; }
 	//void setInterruptedState(State* ps) { pInterruptedState = ps; }
 	void setNumOfBullets(int num) { numOfBullets = num; }
 	void setNumOfGrenades(int num) { numOfGrenades = num; }
 	void setTarget(double targetX, double targetY);
+	void setAsCarrier();
 
 	void CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, int targetType);
 	void Move(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPos>& allAmmo);
@@ -86,5 +92,7 @@ public:
 	double CalculateDistanceFromTarget();
 	bool hasArrivedToBase();
 	bool SearchInRoom(int maze[MAP_SIZE][MAP_SIZE]);
+	void SearchForTeammate();
+	void SearchForHPandAmmo(vector<HPpos>& allHp, vector<AmmoPos>& allAmmo);
 };
 

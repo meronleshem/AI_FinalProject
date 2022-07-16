@@ -126,6 +126,10 @@ void AddNPCs()
 		blueTeam[i] = new NPC(blueBase, randY, randX, BLUE_TEAM_COLOR, redTeam);
 	}
 
+	//Make Carriers
+	//redTeam[NUM_OF_PLAYERS - 1]->setAsCarrier();
+	//blueTeam[NUM_OF_PLAYERS - 1]->setAsCarrier();
+
 	maze[redBaseX][redBaseY] = SPACE;
 	maze[blueBaseX][blueBaseY] = SPACE;
 }
