@@ -276,24 +276,7 @@ void NPC::SearchForTeammate()
 
 void NPC::SearchForHPandAmmo(vector<HPpos>& allHp, vector<AmmoPos>& allAmmo)
 {
-	if (searchHp)
-	{
-		if (!allHp[targetInd].isTaken)
-		{
-			targetRow = allHp[targetInd].col;
-			targetCol = allHp[targetInd].row;
-		}
-		return;
-	}
-	else
-	{
-		if (!allAmmo[targetInd].isTaken)
-		{
-			targetRow = allAmmo[targetInd].col;
-			targetCol = allAmmo[targetInd].row;
-		}
-		return;
-	}
+	
 	int choice = rand() % 2;
 	if (choice == 0)
 	{
