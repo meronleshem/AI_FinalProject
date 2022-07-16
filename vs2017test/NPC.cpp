@@ -43,7 +43,7 @@ void NPC::GotBullet(int num)
 	if (hp <= 0)
 	{
 		isDead = true;
-		cout << team << num << " Dead" << endl;
+		cout << "-----------" << team << num << " Dead-----------" << endl;
 	}
 	else
 		cout << team << num << " " << hp << " hp" << endl;
@@ -55,10 +55,12 @@ void NPC::setTarget(double targetX, double targetY)
 
 }
 
-void NPC::setAsCarrier()
+void NPC::setAsCarrier(vector<HPpos>& allHp, vector<AmmoPos>& allAmmo)
 {
 	isCarrier = true;
 	pCurrentState = new GetHpAndAmmo();
+	isGetHPandAmmo = true;
+	SearchForHPandAmmo(allHp, allAmmo);
 }
 
 void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPos>& allAmmo)
@@ -73,8 +75,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector
 	{
 		if (isGetHPandAmmo)
 		{
-			if(rand() % 100 < 30)
-				SearchForHPandAmmo(allHp, allAmmo);
+			SearchForHPandAmmo(allHp, allAmmo);
 		}
 		if (isMoving)
 		{
@@ -123,7 +124,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector
 			else
 				CalcMove(maze, targetRow, targetCol, SPACE);
 
-			if (numOfBullets > 0 && numOfGrenades > 0) 
+			if (numOfBullets > 0 || numOfGrenades > 0) 
 			{
 				// has enough ammo
 				if (CalculateDistanceFromTarget() <= 7.5)
@@ -156,7 +157,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector
 					double angle = atan2(targetCol - col, targetRow - row) * 180 / 3.14;
 					bullet = new Bullet(row, col, angle);
 					bullet->Fire();
-					numOfBullets--;
+					//numOfBullets--;
 					
 				}
 			}
@@ -275,27 +276,47 @@ void NPC::SearchForTeammate()
 
 void NPC::SearchForHPandAmmo(vector<HPpos>& allHp, vector<AmmoPos>& allAmmo)
 {
-	int choice = rand() % 2;
-	if (choice == 0)
+	if (searchHp)
 	{
-		for (int i = 0; i < allHp.size(); i++)
+		if (!allHp[targetInd].isTaken)
 		{
-			if (!allHp[i].isTaken)
-			{
-				targetRow = allHp[i].col;
-				targetCol = allHp[i].row;
-			}
+			targetRow = allHp[targetInd].col;
+			targetCol = allHp[targetInd].row;
 		}
+		return;
 	}
 	else
 	{
-		for (int i = 0; i < allAmmo.size(); i++)
+		if (!allAmmo[targetInd].isTaken)
 		{
-			if (!allAmmo[i].isTaken)
-			{
-				targetRow = allAmmo[i].col;
-				targetCol = allAmmo[i].row;
-			}
+			targetRow = allAmmo[targetInd].col;
+			targetCol = allAmmo[targetInd].row;
+		}
+		return;
+	}
+	int choice = rand() % 2;
+	if (choice == 0)
+	{
+		searchHp = true;
+		int i = rand() % allHp.size();
+		
+		if (!allHp[i].isTaken)
+		{
+			targetRow = allHp[i].col;
+			targetCol = allHp[i].row;
+			targetInd = i;
+		}
+		
+	}
+	else
+	{
+		searchHp = false;
+		int i = rand() % allAmmo.size();
+		if (!allAmmo[i].isTaken)
+		{
+			targetRow = allAmmo[i].col;
+			targetCol = allAmmo[i].row;
+			targetInd = i;
 		}
 	}
 }
@@ -333,7 +354,9 @@ void NPC::CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, i
 
 			if (nextRow == targetRow && nextCol == targetCol)
 			{
-				FoundPath(pCurrent, maze);
+				Cell* neighbor = new Cell(nextRow, nextCol, pCurrent, tmpG, targetRow, targetCol);
+				pqAStar.push(neighbor);
+				FoundPath(neighbor, maze);
 				break;
 			}
 
@@ -365,6 +388,8 @@ void NPC::Move(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPo
 
 		cout << "HP taken" << endl;
 		hp += 30;
+		if (hp > 100)
+			hp = 100;
 		cout << hp << endl;
 		for (int i = 0; i < allHp.size(); i++)
 		{
@@ -408,7 +433,7 @@ int NPC::ManhattanDistance(int row, int col, int targetRow, int targetCol)
 
 void NPC::FoundPath(Cell* pCurr, int maze[MAP_SIZE][MAP_SIZE])
 {
-	while (pCurr->getParent() != nullptr)
+	while (pCurr != nullptr)
 	{
 		path.push(pCurr->getRow());
 		path.push(pCurr->getCol());
@@ -439,6 +464,8 @@ void NPC::NewTarget(int maze[MAP_SIZE][MAP_SIZE], bool random)
 
 	if (isCarrier)
 	{
+		pqAStar = priority_queue<Cell*, vector<Cell*>, CmpCellF>();
+		pqAStar.push(new Cell(row, col, nullptr));
 		return;
 	}
 

@@ -33,7 +33,7 @@ private:
 	bool atBase, goingToBase, goingToEnemy;
 	bool hasPath, fire;
 	bool isDead;
-	bool isCarrier;
+	bool isCarrier, searchHp;
 	bool isGetHPandAmmo, isPassHPandAmmo;
 	State* pCurrentState;
 	priority_queue<Cell*, vector<Cell*>, CmpCellF> pqAStar;
@@ -79,7 +79,7 @@ public:
 	void setNumOfBullets(int num) { numOfBullets = num; }
 	void setNumOfGrenades(int num) { numOfGrenades = num; }
 	void setTarget(double targetX, double targetY);
-	void setAsCarrier();
+	void setAsCarrier(vector<HPpos>& allHp, vector<AmmoPos>& allAmmo);
 
 	void CalcMove(int maze[MAP_SIZE][MAP_SIZE], int targetRow, int targetCol, int targetType);
 	void Move(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPos>& allAmmo);

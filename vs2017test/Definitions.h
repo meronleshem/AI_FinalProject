@@ -1,5 +1,5 @@
 #pragma once
-const int MAP_SIZE = 40;
+const int MAP_SIZE = 60;
 const int WALL = 0;
 const int SPACE = 1;
 const int AMMO = 2;
