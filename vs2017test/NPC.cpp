@@ -43,7 +43,7 @@ void NPC::GotBullet(int num)
 	if (hp <= 0)
 	{
 		isDead = true;
-		cout << "-----------" << team << num << " Dead-----------" << endl;
+		cout << "-----------" << team << num << " Is Dead-----------" << endl;
 	}
 	else
 		cout << team << num << " " << hp << " hp" << endl;
@@ -82,7 +82,7 @@ void NPC::DoSomething(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector
 			// move npc to next cell by ai path
 			if (hasPath)
 			{
-				Sleep(20);
+				Sleep(10);
 				Move(maze, allHp, allAmmo);
 			}
 			else
@@ -392,7 +392,7 @@ void NPC::Move(int maze[MAP_SIZE][MAP_SIZE], vector<HPpos>& allHp, vector<AmmoPo
 
 		cout << "Ammo taken" << endl;
 		numOfBullets += 50;
-		cout << numOfBullets << endl;
+		//cout << numOfBullets << endl;
 		for (int i = 0; i < allAmmo.size(); i++)
 		{
 			int ammoRow = allAmmo[i].col;
