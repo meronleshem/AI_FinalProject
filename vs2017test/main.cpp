@@ -121,15 +121,14 @@ void AddNPCs()
 	for (int i = 0; i < NUM_OF_PLAYERS; i++) {
 		RandomPositionInRoom(&rooms[1], &randX, &randY);
 		redTeam[i] = new NPC(redBase, randY, randX, RED_TEAM_COLOR, blueTeam);
-		redTeam[i]->setAsCarrier(allHP, allAmmo);
+
 		RandomPositionInRoom(&rooms[2], &randX, &randY);
 		blueTeam[i] = new NPC(blueBase, randY, randX, BLUE_TEAM_COLOR, redTeam);
-		blueTeam[i]->setAsCarrier(allHP, allAmmo);
 	}
 
 	//Make Carriers
-	//redTeam[0]->setAsCarrier(allHP, allAmmo);
-	//blueTeam[0]->setAsCarrier(allHP, allAmmo);
+	redTeam[NUM_OF_PLAYERS - 1]->setAsCarrier(allHP, allAmmo);
+	blueTeam[NUM_OF_PLAYERS - 1]->setAsCarrier(allHP, allAmmo);
 
 	maze[redBaseX][redBaseY] = SPACE;
 	maze[blueBaseX][blueBaseY] = SPACE;
